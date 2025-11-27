@@ -4,7 +4,9 @@ Token domain logic for JWT authentication.
 Following Domain-Driven Design principles.
 """
 
-from datetime import datetime, timedelta, UTC
+from __future__ import annotations
+
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from jose import jwt
