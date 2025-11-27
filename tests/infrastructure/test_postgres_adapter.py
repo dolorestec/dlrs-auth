@@ -1,19 +1,20 @@
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.domain.user import UserCreate
+from app.domain.user import UserCreate, UserUpdate
 from app.infrastructure.postgres_adapter import PostgresUserRepository
 
 
 class AsyncContextManagerMock:
-    def __init__(self, conn):
+    def __init__(self, conn: Any) -> None:
         self.conn = conn
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Any:
         return self.conn
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         pass
 
 
@@ -62,7 +63,7 @@ async def test_get_by_email_not_found(repo: PostgresUserRepository) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_user(repo: PostgresUserRepository, test_password: str) -> None:
+async def test_create_user(repo: PostgresUserRepository) -> None:
     mock_conn = AsyncMock()
     mock_conn.fetchrow.return_value = {
         "id": 1,
@@ -97,8 +98,6 @@ async def test_update_user_email(repo: PostgresUserRepository) -> None:
         "updated_at": "2023-01-02",
     }
 
-    from app.domain.user import UserUpdate
-
     user_update = UserUpdate(email="updated@example.com")
 
     mock_pool = MagicMock()
@@ -122,8 +121,6 @@ async def test_update_user_is_active(repo: PostgresUserRepository) -> None:
         "created_at": "2023-01-01",
         "updated_at": "2023-01-02",
     }
-
-    from app.domain.user import UserUpdate
 
     user_update = UserUpdate(is_active=False)
 
@@ -149,8 +146,6 @@ async def test_update_user_no_changes(repo: PostgresUserRepository) -> None:
         "updated_at": "2023-01-01",
     }
 
-    from app.domain.user import UserUpdate
-
     user_update = UserUpdate()
 
     mock_pool = MagicMock()
@@ -167,8 +162,6 @@ async def test_update_user_not_found(repo: PostgresUserRepository) -> None:
     """Test updating non-existent user."""
     mock_conn = AsyncMock()
     mock_conn.fetchrow.return_value = None
-
-    from app.domain.user import UserUpdate
 
     user_update = UserUpdate(email="new@example.com")
 

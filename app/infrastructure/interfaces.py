@@ -7,10 +7,9 @@ Following SOLID principles, specifically Interface Segregation.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    from app.domain.user import User, UserCreate, UserUpdate
+from app.domain.user import User, UserCreate, UserUpdate
 
 
 class ICache(ABC):

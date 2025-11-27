@@ -5,6 +5,8 @@ Implements IUserRepository using asyncpg for database operations.
 Provides connection pooling and error handling for user CRUD operations.
 """
 
+from __future__ import annotations
+
 from typing import Any
 
 import asyncpg
