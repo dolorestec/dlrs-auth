@@ -27,6 +27,18 @@ def test_password() -> str:
     return "secure_test_password_not_for_production"
 
 
+@pytest.fixture
+async def repo():
+    repo = PostgresUserRepository()
+    # Mock the pool for testing
+    mock_pool = AsyncMock()
+    mock_conn = AsyncMock()
+    mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+    mock_pool.acquire.return_value.__aexit__ = AsyncMock()
+    repo._pool = mock_pool
+    return repo
+
+
 @pytest.mark.asyncio
 async def test_get_by_email_found(repo: PostgresUserRepository) -> None:
     mock_conn = AsyncMock()
@@ -206,3 +218,7 @@ async def test_delete_user_not_found(repo: PostgresUserRepository) -> None:
     with patch.object(repo, "_get_pool", return_value=mock_pool):
         result = await repo.delete_user(999)
         assert result is False
+    user_create = UserCreate(email="new@example.com", password="password")
+    result = await repo.create_user(user_create)
+    assert result.id == 1
+    assert result.email == "new@example.com"
