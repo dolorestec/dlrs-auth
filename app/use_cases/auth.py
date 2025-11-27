@@ -25,7 +25,7 @@ class TokenResponse:
 
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"  # noqa: S105
+    token_type: str = "bearer"
 
 
 class LoginUseCase:
@@ -50,8 +50,8 @@ class LoginUseCase:
 
         # Placeholder response
         return TokenResponse(
-            access_token="placeholder_access_token",  # noqa: S106
-            refresh_token="placeholder_refresh_token",  # noqa: S106
+            access_token="placeholder_access_token",
+            refresh_token="placeholder_refresh_token",
         )
 
 
@@ -80,6 +80,6 @@ class RefreshTokenUseCase:
 
         # Placeholder response
         return TokenResponse(
-            access_token="new_access_token",  # noqa: S106
-            refresh_token="new_refresh_token",  # noqa: S106
+            access_token="new_access_token",
+            refresh_token="new_refresh_token",
         )

@@ -18,6 +18,12 @@ from app.use_cases.auth import (
     ValidateTokenUseCase,
 )
 
+# TODO: Remove these placeholders when implementing real token extraction from requests
+# Temporary constants until proper token extraction from Authorization headers
+# is implemented
+PLACEHOLDER_TOKEN = "placeholder_token"
+PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"
+
 router = APIRouter()
 security = HTTPBearer()
 
@@ -74,7 +80,7 @@ async def validate_token(
     Requires Bearer token in Authorization header.
     """
     # TODO: Extract token from request
-    token = "placeholder_token"
+    token = PLACEHOLDER_TOKEN
     try:
         return await use_case.execute(token)
     except ValueError as e:
@@ -95,7 +101,7 @@ async def refresh_token(
     Requires refresh token in request body.
     """
     # TODO: Extract refresh token from request
-    refresh_token = "placeholder_refresh_token"  # noqa: S105
+    refresh_token = PLACEHOLDER_REFRESH_TOKEN
     try:
         return await use_case.execute(refresh_token)
     except ValueError as e:
