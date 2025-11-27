@@ -5,7 +5,10 @@ Following SOLID principles, specifically Interface Segregation.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.domain.user import User, UserCreate, UserUpdate
 
 
 class ICache(ABC):
@@ -42,3 +45,23 @@ class ICache(ABC):
     @abstractmethod
     async def set_json(self, key: str, value: Any, expire: int | None = None) -> bool:
         """Set JSON value in cache."""
+
+
+class IUserRepository(ABC):
+    """Interface for user repository operations."""
+
+    @abstractmethod
+    async def get_by_email(self, email: str) -> "User | None":
+        """Get user by email address."""
+
+    @abstractmethod
+    async def create_user(self, user: "UserCreate") -> "User":
+        """Create a new user."""
+
+    @abstractmethod
+    async def update_user(self, user_id: int, user_update: "UserUpdate") -> "User | None":
+        """Update user information."""
+
+    @abstractmethod
+    async def delete_user(self, user_id: int) -> bool:
+        """Delete user by ID."""
