@@ -1,3 +1,4 @@
+from types import TracebackType
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -14,7 +15,12 @@ class AsyncContextManagerMock:
     async def __aenter__(self) -> Any:
         return self.conn
 
-    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         pass
 
 
@@ -74,7 +80,7 @@ async def test_create_user(repo: PostgresUserRepository) -> None:
         "updated_at": "2023-01-01",
     }
 
-    user_create = UserCreate(email="new@example.com", password="test_password_123")
+    user_create = UserCreate(email="new@example.com", password="test_password_123")  # noqa: S106
 
     mock_pool = MagicMock()
     mock_pool.acquire.return_value = AsyncContextManagerMock(mock_conn)

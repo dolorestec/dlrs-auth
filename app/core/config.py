@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # CORS
     BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = []
 
-    @field_validator("BACKEND_CORS_ORIGINS", mode="before")  # type: ignore[misc]
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: str | list[str]) -> list[str] | str:
         if isinstance(v, str) and not v.startswith("["):
