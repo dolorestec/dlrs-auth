@@ -2,24 +2,18 @@
 Health check endpoint.
 """
 
-from fastapi import APIRouter
-
-router = APIRouter()
-
-
-"""
-Health check endpoint.
-"""
+from __future__ import annotations
 
 from fastapi import APIRouter
 
 router = APIRouter()
 
 
-@router.get(
+@router.get(  # type: ignore[misc]
     "/",
     summary="Health Check",
-    description="Verifica se o serviço de autenticação está saudável e funcionando corretamente.",
+    description="Verifica se o serviço de autenticação está saudável e "
+    "funcionando corretamente.",
     response_description="Status de saúde do serviço",
     responses={
         200: {

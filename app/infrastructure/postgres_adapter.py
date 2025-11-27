@@ -5,6 +5,8 @@ Implements IUserRepository using asyncpg for database operations.
 Provides connection pooling and error handling for user CRUD operations.
 """
 
+from typing import Any
+
 import asyncpg
 import structlog
 
@@ -18,7 +20,7 @@ logger = structlog.get_logger()
 class PostgresUserRepository(IUserRepository):
     """PostgreSQL implementation of user repository."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize repository with connection pool."""
         self._pool: asyncpg.Pool | None = None
 
@@ -29,7 +31,7 @@ class PostgresUserRepository(IUserRepository):
                 settings.sqlalchemy_database_uri,
                 min_size=5,
                 max_size=20,
-                command_timeout=60
+                command_timeout=60,
             )
         return self._pool
 
@@ -41,10 +43,10 @@ class PostgresUserRepository(IUserRepository):
                 row = await conn.fetchrow(
                     "SELECT id, email, hashed_password, is_active, "
                     "created_at, updated_at FROM users WHERE email = $1",
-                    email
+                    email,
                 )
                 return User(**row) if row else None
-        except asyncpg.exceptions.PostgresError as e:
+        except asyncpg.exceptions.PostgresError:
             logger.exception("Database error in get_by_email")
             raise
 
@@ -61,27 +63,27 @@ class PostgresUserRepository(IUserRepository):
                     RETURNING id, email, hashed_password, is_active,
                               created_at, updated_at
                     """,
-                    user.email, user.password, True
+                    user.email,
+                    user.password,
+                    is_active=True,
                 )
                 return User(**row)
         except asyncpg.exceptions.UniqueViolationError as e:
-            logger.exception("User with email already exists",
-                           email=user.email)
+            logger.exception("User with email already exists", email=user.email)
             msg = "User already exists"
             raise ValueError(msg) from e
-        except asyncpg.exceptions.PostgresError as e:
+        except asyncpg.exceptions.PostgresError:
             logger.exception("Database error in create_user")
             raise
 
-    async def update_user(self, user_id: int,
-                         user_update: UserUpdate) -> User | None:
+    async def update_user(self, user_id: int, user_update: UserUpdate) -> User | None:
         """Update user information by ID."""
         try:
             pool = await self._get_pool()
             async with pool.acquire() as conn:
                 # Build dynamic update query
-                update_fields = []
-                values = []
+                update_fields: list[str] = []
+                values: list[Any] = []
                 if user_update.email is not None:
                     update_fields.append("email = $" + str(len(values) + 1))
                     values.append(user_update.email)
@@ -94,21 +96,23 @@ class PostgresUserRepository(IUserRepository):
                     row = await conn.fetchrow(
                         "SELECT id, email, hashed_password, is_active, "
                         "created_at, updated_at FROM users WHERE id = $1",
-                        user_id
+                        user_id,
                     )
                     return User(**row) if row else None
 
+                # Build safe update query with proper parameterization
+                set_clause = ", ".join(update_fields)
                 values.append(user_id)
                 query = f"""
-                    UPDATE users SET {', '.join(update_fields)}, updated_at = NOW()
+                    UPDATE users SET {set_clause}, updated_at = NOW()
                     WHERE id = ${len(values)}
                     RETURNING id, email, hashed_password, is_active,
                               created_at, updated_at
-                """
+                """  # noqa: S608
 
                 row = await conn.fetchrow(query, *values)
                 return User(**row) if row else None
-        except asyncpg.exceptions.PostgresError as e:
+        except asyncpg.exceptions.PostgresError:
             logger.exception("Database error in update_user")
             raise
 
@@ -118,7 +122,8 @@ class PostgresUserRepository(IUserRepository):
             pool = await self._get_pool()
             async with pool.acquire() as conn:
                 result = await conn.execute("DELETE FROM users WHERE id = $1", user_id)
-                return result == "DELETE 1"
-        except asyncpg.exceptions.PostgresError as e:
+                # result format is "DELETE <count>" where count is affected rows
+                return "DELETE 1" in result
+        except asyncpg.exceptions.PostgresError:
             logger.exception("Database error in delete_user")
             raise

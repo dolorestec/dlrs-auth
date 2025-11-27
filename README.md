@@ -172,27 +172,27 @@ O microserviço de autenticação segue os princípios de **Clean Architecture**
 graph TD
     A[Cliente] --> B[API Gateway]
     B --> C[DLRS Auth Service]
-    
+
     subgraph "Presentation Layer"
         C1[FastAPI Routes]
     end
-    
+
     subgraph "Application Layer"
         C2[Auth Use Cases]
         C3[Token Validation]
     end
-    
+
     subgraph "Domain Layer"
         C4[User Entity]
         C5[JWT Rules]
     end
-    
+
     subgraph "Infrastructure Layer"
         C6[Redis Cache]
         C7[RabbitMQ Events]
         C8[PostgreSQL Queries]
     end
-    
+
     C --> C1
     C1 --> C2
     C1 --> C3

@@ -4,8 +4,9 @@ Domain entities for Dolorestec Auth.
 Following Domain-Driven Design principles.
 """
 
-from datetime import datetime, UTC
-from pydantic import BaseModel, EmailStr, Field
+from datetime import UTC, datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class User(BaseModel):
@@ -23,8 +24,7 @@ class User(BaseModel):
         default_factory=lambda: datetime.now(UTC), description="Last update timestamp"
     )
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     def update_timestamp(self) -> None:
         """Update the updated_at timestamp."""
