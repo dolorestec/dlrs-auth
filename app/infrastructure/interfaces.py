@@ -4,8 +4,10 @@ Interfaces for infrastructure adapters.
 Following SOLID principles, specifically Interface Segregation.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from app.domain.user import User, UserCreate, UserUpdate
@@ -51,15 +53,15 @@ class IUserRepository(ABC):
     """Interface for user repository operations."""
 
     @abstractmethod
-    async def get_by_email(self, email: str) -> "User | None":
+    async def get_by_email(self, email: str) -> User | None:
         """Get user by email address."""
 
     @abstractmethod
-    async def create_user(self, user: "UserCreate") -> "User":
+    async def create_user(self, user: UserCreate) -> User:
         """Create a new user."""
 
     @abstractmethod
-    async def update_user(self, user_id: int, user_update: "UserUpdate") -> "User | None":
+    async def update_user(self, user_id: int, user_update: UserUpdate) -> User | None:
         """Update user information."""
 
     @abstractmethod

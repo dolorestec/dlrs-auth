@@ -98,5 +98,6 @@ No complex migrations; simple queries via asyncpg. Redis for cache/sessions, Rab
 - Ensure complete Swagger documentation with detailed descriptions, examples, and responses for all endpoints
 - Apply SOLID principles: Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
 - Do not hardcode sensitive data; use environment variables for secrets
+- **Type Annotations**: Always use `from __future__ import annotations` at the top of modules instead of `TYPE_CHECKING` for conditional imports. This ensures type annotations are strings and avoids runtime dependencies on type-only imports.
 
 Trust these instructions; they are validated and up-to-date. If something is unclear, check the README or pyproject.toml for details.

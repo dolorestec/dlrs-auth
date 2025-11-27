@@ -33,6 +33,7 @@ dependencies = [
     "aioredis>=2.0.0",
     "aio-pika>=9.4.0",
     "structlog>=24.4.0",
+    "email-validator>=2.3.0",
 ]
 
 [project.optional-dependencies]
@@ -52,7 +53,7 @@ dev = [
 
 [tool.ruff]
 line-length = 88
-target-version = "py314"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
@@ -93,5 +94,14 @@ exclude_lines = [
     "raise NotImplementedError",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["app"]
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101", "B608"]  # B101: assert used, B608: hardcoded SQL expressions (false positive for parameterized queries)
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.0.0",
+    "pytest-xdist>=3.8.0",
+]
