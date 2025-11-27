@@ -9,7 +9,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get(
+@router.get(  # type: ignore[misc]
     "/",
     summary="Health Check",
     description="Verifica se o serviço de autenticação está saudável e "

@@ -462,6 +462,14 @@ dev = [
     { name = "pytest-xdist" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-xdist" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "aio-pika", specifier = ">=9.4.0" },

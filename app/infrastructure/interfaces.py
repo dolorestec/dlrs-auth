@@ -5,6 +5,12 @@ Following SOLID principles, specifically Interface Segregation.
 """
 
 from __future__ import annotations
+<<<<<<< HEAD
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Any
+=======
+>>>>>>> origin/develop
 
 from abc import ABC, abstractmethod
 from typing import Any
@@ -54,3 +60,18 @@ class IUserRepository(ABC):
     @abstractmethod
     async def get_by_email(self, email: str) -> User | None:
         """Get user by email address."""
+<<<<<<< HEAD
+
+    @abstractmethod
+    async def create_user(self, user: UserCreate) -> User:
+        """Create a new user."""
+
+    @abstractmethod
+    async def update_user(self, user_id: int, user_update: UserUpdate) -> User | None:
+        """Update user information."""
+
+    @abstractmethod
+    async def delete_user(self, user_id: int) -> bool:
+        """Delete user by ID."""
+=======
+>>>>>>> origin/develop
