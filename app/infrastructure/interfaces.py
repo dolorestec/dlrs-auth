@@ -9,7 +9,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
-from app.domain.user import User, UserCreate, UserUpdate
+from app.domain.user import User
 
 
 class ICache(ABC):
@@ -54,15 +54,3 @@ class IUserRepository(ABC):
     @abstractmethod
     async def get_by_email(self, email: str) -> User | None:
         """Get user by email address."""
-
-    @abstractmethod
-    async def create_user(self, user: UserCreate) -> User:
-        """Create a new user."""
-
-    @abstractmethod
-    async def update_user(self, user_id: int, user_update: UserUpdate) -> User | None:
-        """Update user information."""
-
-    @abstractmethod
-    async def delete_user(self, user_id: int) -> bool:
-        """Delete user by ID."""

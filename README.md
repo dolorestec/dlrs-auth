@@ -10,7 +10,9 @@ Microserviço de Autenticação da Dolorestec, responsável pela gestão segura 
 
 ## 📋 Descrição Geral
 
-Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princípios de Clean Architecture e DDD. Ele centraliza todas as operações de autenticação, garantindo segurança stateless com JWT, hashing de senhas e refresh tokens. Integra-se com Redis para cache de sessões e RabbitMQ para eventos assíncronos.
+Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princípios de Clean Architecture e DDD. Ele centraliza **apenas operações de autenticação**, garantindo segurança stateless com JWT, hashing de senhas e refresh tokens. Integra-se com Redis para cache de sessões e RabbitMQ para eventos assíncronos.
+
+**Separação Arquitetural:** Este serviço foca exclusivamente em autenticação. Operações de gestão de usuários (CRUD completo) são realizadas pelo microserviço dedicado `dlrs-user-management` localizado em `/home/lucas/dolorestec/dlrs-user-management/`.
 
 ## 🚀 Funcionalidades Principais
 
@@ -20,6 +22,9 @@ Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princíp
 - **📊 Auditoria de Segurança**: Logs estruturados para tentativas de login, invalidações e anomalias.
 - **🔄 Integração Assíncrona**: Comunicação via RabbitMQ para eventos como "token_revoked".
 - **🌐 Suporte a OAuth2 Flows**: Password grant, client credentials.
+
+**Nota:** Operações de gestão de usuários (criação, atualização, exclusão) são realizadas pelo microserviço `dlrs-user-management`.
+
 - **📈 Escalabilidade**: Design assíncrono para suportar milhões de autenticações simultâneas.
 
 ## 🛠️ Tecnologias e Dependências

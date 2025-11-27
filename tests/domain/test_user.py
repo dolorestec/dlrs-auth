@@ -8,10 +8,10 @@ import pytest
 
 from app.domain.user import User, UserCreate, UserUpdate
 
-TEST_HASHED_PASSWORD = "hashed_password_123"  # noqa: S105
+TEST_HASHED_PASSWORD = "hashed_password_123"
 TEST_EMAIL = "test@example.com"
-TEST_PASSWORD = "secure_password_123"  # noqa: S105
-SHORT_PASSWORD = "short"  # noqa: S105
+TEST_PASSWORD = "secure_password_123"
+SHORT_PASSWORD = "short"
 
 
 class TestUser:
