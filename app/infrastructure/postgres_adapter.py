@@ -5,13 +5,11 @@ Implements IUserRepository using asyncpg for database operations.
 Provides connection pooling and error handling for user CRUD operations.
 """
 
-from typing import Any
-
 import asyncpg
 import structlog
 
 from app.core.config import settings
-from app.domain.user import User, UserCreate, UserUpdate
+from app.domain.user import User
 from app.infrastructure.interfaces import IUserRepository
 
 logger = structlog.get_logger()
@@ -65,7 +63,7 @@ class PostgresUserRepository(IUserRepository):
                     """,
                     user.email,
                     user.password,
-                    is_active=True,
+                    True,
                 )
                 return User(**row)
         except asyncpg.exceptions.UniqueViolationError as e:
@@ -82,8 +80,8 @@ class PostgresUserRepository(IUserRepository):
             pool = await self._get_pool()
             async with pool.acquire() as conn:
                 # Build dynamic update query
-                update_fields: list[str] = []
-                values: list[Any] = []
+                update_fields = []
+                values = []
                 if user_update.email is not None:
                     update_fields.append("email = $" + str(len(values) + 1))
                     values.append(user_update.email)
@@ -100,15 +98,13 @@ class PostgresUserRepository(IUserRepository):
                     )
                     return User(**row) if row else None
 
-                # Build safe update query with proper parameterization
-                set_clause = ", ".join(update_fields)
                 values.append(user_id)
                 query = f"""
-                    UPDATE users SET {set_clause}, updated_at = NOW()
+                    UPDATE users SET {', '.join(update_fields)}, updated_at = NOW()
                     WHERE id = ${len(values)}
                     RETURNING id, email, hashed_password, is_active,
                               created_at, updated_at
-                """  # noqa: S608
+                """
 
                 row = await conn.fetchrow(query, *values)
                 return User(**row) if row else None
@@ -122,8 +118,7 @@ class PostgresUserRepository(IUserRepository):
             pool = await self._get_pool()
             async with pool.acquire() as conn:
                 result = await conn.execute("DELETE FROM users WHERE id = $1", user_id)
-                # result format is "DELETE <count>" where count is affected rows
-                return "DELETE 1" in result
+                return result == "DELETE 1"
         except asyncpg.exceptions.PostgresError:
             logger.exception("Database error in delete_user")
             raise

@@ -5,12 +5,17 @@ Following SOLID principles, specifically Interface Segregation.
 """
 
 from __future__ import annotations
+<<<<<<< HEAD
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
+=======
+>>>>>>> origin/develop
 
-if TYPE_CHECKING:
-    from app.domain.user import User, UserCreate, UserUpdate
+from abc import ABC, abstractmethod
+from typing import Any
+
+from app.domain.user import User
 
 
 class ICache(ABC):
@@ -55,6 +60,7 @@ class IUserRepository(ABC):
     @abstractmethod
     async def get_by_email(self, email: str) -> User | None:
         """Get user by email address."""
+<<<<<<< HEAD
 
     @abstractmethod
     async def create_user(self, user: UserCreate) -> User:
@@ -67,3 +73,5 @@ class IUserRepository(ABC):
     @abstractmethod
     async def delete_user(self, user_id: int) -> bool:
         """Delete user by ID."""
+=======
+>>>>>>> origin/develop
