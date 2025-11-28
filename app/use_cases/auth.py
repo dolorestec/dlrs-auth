@@ -9,6 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.core.config import settings
+from app.domain.token import Token
+from app.infrastructure.interfaces import ICache, IEventPublisher, IUserRepository
 
 
 @dataclass
@@ -31,10 +33,16 @@ class TokenResponse:
 class LoginUseCase:
     """Use case for user authentication."""
 
-    def __init__(self, user_repository: IUserRepository, cache: ICache) -> None:
+    def __init__(
+        self,
+        user_repository: IUserRepository,
+        cache: ICache,
+        event_publisher: IEventPublisher,
+    ) -> None:
         """Initialize use case with dependencies."""
         self.user_repository = user_repository
         self.cache = cache
+        self.event_publisher = event_publisher
 
     async def execute(self, request: LoginRequest) -> TokenResponse:
         """Execute login logic."""
@@ -68,7 +76,8 @@ class LoginUseCase:
             raise ValueError(msg)
         token_pair = Token.create_token_pair(user.id)
 
-        # TODO: Publish login event to RabbitMQ
+        # Publish login event to RabbitMQ
+        await self.event_publisher.publish_user_logged_in(user.id, user.email)
 
         return TokenResponse(
             access_token=token_pair.access_token,
