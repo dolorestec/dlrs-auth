@@ -2,8 +2,7 @@
 Pytest configuration and global fixtures.
 """
 
-from typing import Generator
-
+from collections.abc import Generator
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -86,16 +85,17 @@ def mock_pwd_context_verify() -> MagicMock:
 @pytest.fixture(autouse=True)
 def patch_pwd_context(
     mock_pwd_context_hash: MagicMock, mock_pwd_context_verify: MagicMock
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     """Automatically patch pwd_context.hash and pwd_context.verify in all tests."""
-    with patch("app.domain.user.pwd_context.hash", mock_pwd_context_hash), patch(
-        "app.domain.user.pwd_context.verify", mock_pwd_context_verify
+    with (
+        patch("app.domain.user.pwd_context.hash", mock_pwd_context_hash),
+        patch("app.domain.user.pwd_context.verify", mock_pwd_context_verify),
     ):
         yield
 
 
 @pytest.fixture(autouse=True)
-def patch_redis_client() -> Generator[None, None, None]:
+def patch_redis_client() -> Generator[None]:
     """Automatically patch redis_client to avoid redis[asyncio] import issues."""
     mock_redis = MagicMock()
     with patch("app.infrastructure.redis_client.redis_client", mock_redis):

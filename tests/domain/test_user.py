@@ -1,8 +1,8 @@
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
-from unittest.mock import patch
 
 from app.domain.user import User, UserCreate, UserUpdate
 
