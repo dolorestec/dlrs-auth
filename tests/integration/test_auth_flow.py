@@ -4,16 +4,14 @@ Integration tests for authentication flow.
 Tests complete end-to-end authentication scenarios using mocked dependencies.
 """
 
-import asyncio
-from datetime import timedelta
 from unittest.mock import AsyncMock, MagicMock
 
-import httpx
 import pytest
+from fastapi.testclient import TestClient
 
+import app.api.v1.endpoints.auth as auth_module
 from app.core.config import Settings
 from app.main import app
-import app.api.v1.endpoints.auth as auth_module
 
 # HTTP status codes
 HTTP_200_OK = 200
@@ -57,15 +55,14 @@ async def test_settings() -> Settings:
 
 
 @pytest.fixture(scope="session")
-def test_client(test_settings):
+def test_client() -> TestClient:
     """HTTP test client for the FastAPI app."""
     from fastapi.testclient import TestClient
 
     # Override settings in the app
     app.dependency_overrides = {}
 
-    client = TestClient(app)
-    yield client
+    return TestClient(app)
 
 
 class TestAuthIntegration:
@@ -91,8 +88,6 @@ class TestAuthIntegration:
         async def mock_get_repo():
             return mock_repo
 
-        import app.api.v1.endpoints.auth as auth_module
-
         auth_module.get_user_repository = mock_get_repo
 
         try:
@@ -109,9 +104,6 @@ class TestAuthIntegration:
             assert "access_token" in login_data
             assert "refresh_token" in login_data
 
-            access_token = login_data["access_token"]
-            refresh_token = login_data["refresh_token"]
-
             # Validate token (placeholder implementation)
             validate_response = test_client.post("/api/v1/auth/validate")
             assert validate_response.status_code == HTTP_200_OK
@@ -124,7 +116,7 @@ class TestAuthIntegration:
             # Restore original
             auth_module.get_user_repository = original_get_repo
 
-    def test_rate_limiting(self, test_client, mock_rate_limiting_redis) -> None:
+    def test_rate_limiting(self, test_client) -> None:
         """Test rate limiting functionality."""
         # Configure mock user for this test
         mock_repo = MagicMock()
@@ -139,8 +131,6 @@ class TestAuthIntegration:
         # Mock the user repository
         async def mock_get_user_repository():
             return mock_repo
-
-        import app.api.v1.endpoints.auth as auth_module
 
         original_get_repo = auth_module.get_user_repository
         auth_module.get_user_repository = mock_get_user_repository
@@ -203,8 +193,6 @@ class TestAuthIntegration:
 
         async def mock_get_repo():
             return mock_repo
-
-        import app.api.v1.endpoints.auth as auth_module
 
         auth_module.get_user_repository = mock_get_repo
 

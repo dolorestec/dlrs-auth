@@ -18,8 +18,9 @@ def patch_redis_client() -> Generator[None]:
     mock_redis.get = AsyncMock(return_value=None)
     mock_redis.set = AsyncMock(return_value=True)
 
-    with patch("app.infrastructure.redis_client.redis_client", mock_redis), patch(
-        "app.api.v1.endpoints.auth.get_cache", return_value=mock_redis
+    with (
+        patch("app.infrastructure.redis_client.redis_client", mock_redis),
+        patch("app.api.v1.endpoints.auth.get_cache", return_value=mock_redis),
     ):
         yield
 
@@ -32,10 +33,11 @@ def patch_rabbitmq_publisher() -> Generator[None]:
     mock_publisher.publish_token_revoked = AsyncMock()
     mock_publisher.publish_password_changed = AsyncMock()
 
-    with patch(
-        "app.infrastructure.rabbitmq_adapter.rabbitmq_publisher", mock_publisher
-    ), patch(
-        "app.api.v1.endpoints.auth.get_event_publisher", return_value=mock_publisher
+    with (
+        patch("app.infrastructure.rabbitmq_adapter.rabbitmq_publisher", mock_publisher),
+        patch(
+            "app.api.v1.endpoints.auth.get_event_publisher", return_value=mock_publisher
+        ),
     ):
         yield
 
@@ -81,7 +83,8 @@ def mock_rate_limiting_redis() -> Generator[MagicMock]:
     mock_redis.get = AsyncMock(return_value=None)
     mock_redis.set = AsyncMock(return_value=True)
 
-    with patch("app.infrastructure.redis_client.redis_client", mock_redis), patch(
-        "app.api.v1.endpoints.auth.get_cache", return_value=mock_redis
+    with (
+        patch("app.infrastructure.redis_client.redis_client", mock_redis),
+        patch("app.api.v1.endpoints.auth.get_cache", return_value=mock_redis),
     ):
         yield mock_redis
