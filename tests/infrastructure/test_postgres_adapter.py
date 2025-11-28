@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.domain.user import UserCreate
+from app.domain.user import UserCreate, UserUpdate
 from app.infrastructure.postgres_adapter import PostgresUserRepository
 
 
@@ -15,11 +15,6 @@ class AsyncContextManagerMock:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         pass
-
-
-@pytest.fixture
-async def repo() -> PostgresUserRepository:
-    return PostgresUserRepository()
 
 
 @pytest.fixture
@@ -74,7 +69,7 @@ async def test_get_by_email_not_found(repo: PostgresUserRepository) -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_user(repo: PostgresUserRepository, test_password: str) -> None:
+async def test_create_user(repo: PostgresUserRepository) -> None:
     mock_conn = AsyncMock()
     mock_conn.fetchrow.return_value = {
         "id": 1,
@@ -109,8 +104,6 @@ async def test_update_user_email(repo: PostgresUserRepository) -> None:
         "updated_at": "2023-01-02",
     }
 
-    from app.domain.user import UserUpdate
-
     user_update = UserUpdate(email="updated@example.com")
 
     mock_pool = MagicMock()
@@ -134,8 +127,6 @@ async def test_update_user_is_active(repo: PostgresUserRepository) -> None:
         "created_at": "2023-01-01",
         "updated_at": "2023-01-02",
     }
-
-    from app.domain.user import UserUpdate
 
     user_update = UserUpdate(is_active=False)
 
@@ -161,8 +152,6 @@ async def test_update_user_no_changes(repo: PostgresUserRepository) -> None:
         "updated_at": "2023-01-01",
     }
 
-    from app.domain.user import UserUpdate
-
     user_update = UserUpdate()
 
     mock_pool = MagicMock()
@@ -179,8 +168,6 @@ async def test_update_user_not_found(repo: PostgresUserRepository) -> None:
     """Test updating non-existent user."""
     mock_conn = AsyncMock()
     mock_conn.fetchrow.return_value = None
-
-    from app.domain.user import UserUpdate
 
     user_update = UserUpdate(email="new@example.com")
 
@@ -218,7 +205,3 @@ async def test_delete_user_not_found(repo: PostgresUserRepository) -> None:
     with patch.object(repo, "_get_pool", return_value=mock_pool):
         result = await repo.delete_user(999)
         assert result is False
-    user_create = UserCreate(email="new@example.com", password="password")
-    result = await repo.create_user(user_create)
-    assert result.id == 1
-    assert result.email == "new@example.com"

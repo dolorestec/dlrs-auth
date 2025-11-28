@@ -49,3 +49,6 @@ Automatize o processo completo de desenvolvimento para uma issue do GitHub, desd
 
 ## Iteração
 Se issue complexa, dividir em commits menores; se simples, implementar tudo de uma vez.
+
+## Finalizar
+- Garanta que está na branch develop após criar o PR

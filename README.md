@@ -61,7 +61,7 @@ Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princíp
 
 ### Cache e Mensageria
 
-- **[aioredis](https://github.com/aio-libs/aioredis)** - Cliente Redis assíncrono.
+- **[redis[asyncio]](https://github.com/aio-libs/redis[asyncio])** - Cliente Redis assíncrono.
 - **[aio-pika](https://aio-pika.readthedocs.io/)** - Cliente RabbitMQ assíncrono.
 - **[RabbitMQ](https://www.rabbitmq.com/)** - Message broker para CQRS/Event Sourcing.
 
@@ -90,6 +90,13 @@ Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princíp
 ### Documentação
 
 - **[MkDocs](https://www.mkdocs.org/)** - Gerador de documentação.
+- **[mkdocs-material](https://squidfunk.github.io/mkdocs-material/)** - Tema moderno para MkDocs.
+- **[mkdocstrings](https://mkdocstrings.github.io/)** - Documentação automática de código.
+- **[mkdocs-jinja2](# pesquisar na internet) - Suporte a templates Jinja2 no MkDocs.
+- **[mkdocs-swagger-ui](# pesquisar na internet) - Integração Swagger UI no MkDocs.
+- **[mkdocs[i18n]](https://mkdocs-i18n.readthedocs.io/)** - Suporte a internacionalização no MkDocs.
+- **["pydocstyle[toml]"](https://www.pydocstyle.org/en/stable/)** - Verificação de docstrings com suporte a configuração TOML.
+- **[Swagger UI](https://swagger.io/tools/swagger-ui/)** - Documentação interativa de APIs.
 
 ## 📚 Padrões Adotados
 

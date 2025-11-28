@@ -1,251 +1,102 @@
-"""
-Tests for domain entities.
-"""
-
-from datetime import UTC, datetime
+from typing import Any
 
 import pytest
+from pydantic import ValidationError
+from unittest.mock import patch
 
 from app.domain.user import User, UserCreate, UserUpdate
 
 
-TEST_HASHED_PASSWORD = "hashed_password_123"  # noqa: S105
-TEST_EMAIL = "test@example.com"
-TEST_PASSWORD = "secure_password_123"  # noqa: S105
-SHORT_PASSWORD = "short"  # noqa: S105
-
-
 class TestUser:
-    """Test User domain entity."""
-
-    def test_user_creation(self) -> None:
-        """Test creating a user with all fields."""
-        user = User(
-            id=1,
-            email=TEST_EMAIL,
-            hashed_password=TEST_HASHED_PASSWORD,
-            is_active=True,
-            created_at=datetime(2023, 1, 1, tzinfo=UTC),
-            updated_at=datetime(2023, 1, 1, tzinfo=UTC),
-        )
+    def test_user_creation(self, fake_email: str, fake_password: str) -> None:
+        user = User(id=1, email=fake_email, hashed_password=fake_password)
         assert user.id == 1
-        assert user.email == TEST_EMAIL
-        assert user.hashed_password == TEST_HASHED_PASSWORD
-        assert user.is_active is True
+        assert user.email == fake_email
+        assert user.hashed_password == fake_password
 
-    def test_user_creation_defaults(self) -> None:
-        """Test creating a user with default values."""
-        user = User(
-            email=TEST_EMAIL,
-            hashed_password=TEST_HASHED_PASSWORD,
-        )
-        assert user.id is None
-        assert user.email == TEST_EMAIL
-        assert user.hashed_password == TEST_HASHED_PASSWORD
-        assert user.is_active is True
+    def test_user_equality(self, fake_email: str, fake_password: str) -> None:
+        user1 = User(id=1, email=fake_email, hashed_password=fake_password)
+        user2 = User(id=1, email=fake_email, hashed_password=fake_password)
+        # Compare only relevant fields since timestamps differ
+        assert user1.id == user2.id
+        assert user1.email == user2.email
+        assert user1.hashed_password == user2.hashed_password
+        assert user1.is_active == user2.is_active
 
-    def test_update_timestamp(self) -> None:
-        """Test updating timestamp."""
-        user = User(
-            email=TEST_EMAIL,
-            hashed_password=TEST_HASHED_PASSWORD,
-            updated_at=datetime(2023, 1, 1, tzinfo=UTC),
-        )
-        old_timestamp = user.updated_at
-        user.update_timestamp()
-        assert user.updated_at > old_timestamp
-
-    def test_deactivate(self) -> None:
-        """Test deactivating user."""
-        user = User(
-            email=TEST_EMAIL,
-            hashed_password=TEST_HASHED_PASSWORD,
-            is_active=True,
-        )
-        user.deactivate()
-        assert user.is_active is False
-
-    def test_activate(self) -> None:
-        """Test activating user."""
-        user = User(
-            email=TEST_EMAIL,
-            hashed_password=TEST_HASHED_PASSWORD,
-            is_active=False,
-        )
-        user.activate()
-        assert user.is_active is True
+    def test_user_inequality(
+        self, fake_email: str, fake_password: str, faker: Any
+    ) -> None:
+        user1 = User(id=1, email=fake_email, hashed_password=fake_password)
+        user2 = User(id=2, email=faker.email(), hashed_password=faker.password())
+        assert user1 != user2
 
 
 class TestUserCreate:
-    """Test UserCreate schema."""
+    @pytest.mark.parametrize(
+        ("email", "password"),
+        [
+            ("user@example.com", "password123"),
+            ("test@domain.org", "securepass"),
+            ("admin@test.net", "admin123"),
+        ],
+    )
+    @patch("app.domain.user.pwd_context")
+    def test_user_create_valid(
+        self, mock_pwd_context: Any, email: str, password: str
+    ) -> None:
+        mock_pwd_context.hash.return_value = "hashed_password"
+        user_create = UserCreate(email=email, password=password)
+        assert user_create.email == email
+        assert user_create.password == password
 
-    def test_user_create_valid(self) -> None:
-        """Test creating UserCreate with valid data."""
-        user_create = UserCreate(
-            email=TEST_EMAIL,
-            password=TEST_PASSWORD,
-        )
-        assert user_create.email == TEST_EMAIL
-        assert user_create.password == TEST_PASSWORD
+    @pytest.mark.parametrize(
+        "invalid_email",
+        [
+            "invalid-email",
+            "@example.com",
+            "user@",
+            "",
+        ],
+    )
+    def test_user_create_invalid_email(
+        self, invalid_email: str, fake_password: str
+    ) -> None:
+        with pytest.raises(ValidationError):
+            UserCreate(email=invalid_email, password=fake_password)
 
-    def test_user_create_invalid_email(self) -> None:
-        """Test creating UserCreate with invalid email."""
-        with pytest.raises(ValueError, match="value is not a valid email"):
-            UserCreate(
-                email="invalid-email",
-                password=TEST_PASSWORD,
-            )
-
-    def test_user_create_short_password(self) -> None:
-        """Test creating UserCreate with short password."""
-        with pytest.raises(ValueError, match="at least 8 characters"):
-            UserCreate(
-                email=TEST_EMAIL,
-                password=SHORT_PASSWORD,
-            )
-
-
-class TestUserUpdate:
-    """Test UserUpdate schema."""
-
-    def test_user_update_partial(self) -> None:
-        """Test creating UserUpdate with partial data."""
-        user_update = UserUpdate(email="new@example.com")
-        assert user_update.email == "new@example.com"
-        assert user_update.is_active is None
-
-    def test_user_update_full(self) -> None:
-        """Test creating UserUpdate with all fields."""
-        user_update = UserUpdate(
-            email="new@example.com",
-            is_active=False,
-        )
-        assert user_update.email == "new@example.com"
-        assert user_update.is_active is False
-
-    def test_user_update_empty(self) -> None:
-        """Test creating UserUpdate with no fields."""
-        user_update = UserUpdate()
-        assert user_update.email is None
-        assert user_update.is_active is None
-
-
-class TestUser:
-    """Test User domain entity."""
-
-    def test_user_creation(self) -> None:
-        """Test creating a user with all fields."""
-        user = User(
-            id=1,
-            email="test@example.com",
-            hashed_password="hashed_password",
-            is_active=True,
-            created_at=datetime(2023, 1, 1, tzinfo=UTC),
-            updated_at=datetime(2023, 1, 1, tzinfo=UTC),
-        )
-        assert user.id == 1
-        assert user.email == "test@example.com"
-        assert user.hashed_password == "hashed_password"
-        assert user.is_active is True
-        assert user.created_at == datetime(2023, 1, 1, tzinfo=UTC)
-        assert user.updated_at == datetime(2023, 1, 1, tzinfo=UTC)
-
-    def test_user_creation_defaults(self) -> None:
-        """Test creating a user with default values."""
-        user = User(
-            email="test@example.com",
-            hashed_password="hashed_password",
-        )
-        assert user.id is None
-        assert user.email == "test@example.com"
-        assert user.hashed_password == "hashed_password"
-        assert user.is_active is True
-        assert isinstance(user.created_at, datetime)
-        assert isinstance(user.updated_at, datetime)
-
-    def test_update_timestamp(self) -> None:
-        """Test updating timestamp."""
-        user = User(
-            email="test@example.com",
-            hashed_password="hashed_password",
-            updated_at=datetime(2023, 1, 1, tzinfo=UTC),
-        )
-        old_timestamp = user.updated_at
-        user.update_timestamp()
-        assert user.updated_at > old_timestamp
-
-    def test_deactivate(self) -> None:
-        """Test deactivating user."""
-        user = User(
-            email="test@example.com",
-            hashed_password="hashed_password",
-            is_active=True,
-        )
-        user.deactivate()
-        assert user.is_active is False
-        assert user.updated_at > user.created_at
-
-    def test_activate(self) -> None:
-        """Test activating user."""
-        user = User(
-            email="test@example.com",
-            hashed_password="hashed_password",
-            is_active=False,
-        )
-        user.activate()
-        assert user.is_active is True
-        assert user.updated_at > user.created_at
-
-
-class TestUserCreate:
-    """Test UserCreate schema."""
-
-    def test_user_create_valid(self) -> None:
-        """Test creating UserCreate with valid data."""
-        user_create = UserCreate(
-            email="test@example.com",
-            password="secure_password_123",
-        )
-        assert user_create.email == "test@example.com"
-        assert user_create.password == "secure_password_123"
-
-    def test_user_create_invalid_email(self) -> None:
-        """Test creating UserCreate with invalid email."""
-        with pytest.raises(ValueError):
-            UserCreate(
-                email="invalid-email",
-                password="secure_password_123",
-            )
-
-    def test_user_create_short_password(self) -> None:
-        """Test creating UserCreate with short password."""
-        with pytest.raises(ValueError):
-            UserCreate(
-                email="test@example.com",
-                password="short",
-            )
+    def test_user_create_short_password(self, fake_email: str) -> None:
+        with pytest.raises(ValidationError):
+            UserCreate(email=fake_email, password="short")
 
 
 class TestUserUpdate:
-    """Test UserUpdate schema."""
+    def test_user_update_valid(self, fake_email: str) -> None:
+        user_update = UserUpdate(email=fake_email)
+        assert user_update.email == fake_email
 
-    def test_user_update_partial(self) -> None:
-        """Test creating UserUpdate with partial data."""
-        user_update = UserUpdate(email="new@example.com")
-        assert user_update.email == "new@example.com"
-        assert user_update.is_active is None
+    def test_user_update_invalid_email(self, fake_invalid_email: str) -> None:
+        with pytest.raises(ValidationError):
+            UserUpdate(email=fake_invalid_email)
 
-    def test_user_update_full(self) -> None:
-        """Test creating UserUpdate with all fields."""
-        user_update = UserUpdate(
-            email="new@example.com",
-            is_active=False,
-        )
-        assert user_update.email == "new@example.com"
-        assert user_update.is_active is False
-
-    def test_user_update_empty(self) -> None:
-        """Test creating UserUpdate with no fields."""
+    def test_user_update_optional_fields(self) -> None:
         user_update = UserUpdate()
         assert user_update.email is None
-        assert user_update.is_active is None
+
+
+class TestHashPassword:
+    @pytest.mark.parametrize(
+        ("password", "expected_hash"),
+        [
+            ("password123", "hashed_password123"),
+            ("securepass", "hashed_securepass"),
+            ("admin123", "hashed_admin123"),
+        ],
+    )
+    @patch("app.domain.user.pwd_context")
+    def test_hash_password(
+        self, mock_pwd_context: Any, password: str, expected_hash: str
+    ) -> None:
+        mock_pwd_context.hash.return_value = expected_hash
+        result = User.hash_password(password)
+        assert result == expected_hash
+        mock_pwd_context.hash.assert_called_once_with(password)

@@ -11,7 +11,7 @@ import asyncpg
 import structlog
 
 from app.core.config import settings
-from app.domain.user import User
+from app.domain.user import User, UserCreate, UserUpdate
 from app.infrastructure.interfaces import IUserRepository
 
 logger = structlog.get_logger()
