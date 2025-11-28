@@ -35,6 +35,7 @@ Realize uma análise abrangente do código do projeto Dolorestec Auth para verif
 - Não modifique o código; apenas analise e reporte
 - Use ferramentas de busca para localizar arquivos relevantes
 - Foque em padrões documentados, ignore convenções não especificadas
+- Leia as documentações de referência se necessário, para tirar dúvidas.
 
 ## Critérios de Sucesso
 - Relatório completo com seções por categoria

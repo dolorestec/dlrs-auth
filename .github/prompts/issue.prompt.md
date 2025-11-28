@@ -39,6 +39,7 @@ Automatize o processo completo de desenvolvimento para uma issue do GitHub, desd
 - Seguir padrões de commit (Conventional Commits)
 - Não mergear PR; apenas criar
 - Usar labels da issue para determinar tipo (enhancement=feature, bug=bugfix)
+- Leia as documentações de referência se necessário, para tirar dúvidas.
 
 ## Critérios de Sucesso
 - Branch criada corretamente
