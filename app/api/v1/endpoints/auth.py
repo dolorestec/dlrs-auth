@@ -10,7 +10,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 
 from app.infrastructure.postgres_adapter import PostgresUserRepository
-from app.infrastructure.redis_client import RedisClient
+from app.infrastructure.rabbitmq_adapter import rabbitmq_publisher
+from app.infrastructure.redis_client import redis_client
 from app.use_cases.auth import (
     LoginRequest,
     LoginUseCase,
@@ -28,31 +29,28 @@ PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"
 router = APIRouter()
 security = HTTPBearer()
 
-# TODO: Remove these placeholders when implementing real token extraction from requests
-# Temporary constants until proper token extraction from Authorization headers
-# is implemented
-PLACEHOLDER_TOKEN = "placeholder_token"
-PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"
-
-router = APIRouter()
-security = HTTPBearer()
-
 
 async def get_user_repository() -> PostgresUserRepository:
     """Dependency to get user repository."""
     return PostgresUserRepository()
 
 
-async def get_cache() -> RedisClient:
+async def get_cache() -> redis_client.__class__:
     """Dependency to get cache client."""
     return redis_client
+
+
+async def get_event_publisher() -> rabbitmq_publisher.__class__:
+    """Dependency to get event publisher."""
+    return rabbitmq_publisher
 
 
 async def get_login_use_case() -> LoginUseCase:
     """Dependency to get login use case."""
     repo = await get_user_repository()
     cache = await get_cache()
-    return LoginUseCase(repo, cache)
+    event_publisher = await get_event_publisher()
+    return LoginUseCase(repo, cache, event_publisher)
 
 
 async def get_validate_use_case() -> ValidateTokenUseCase:

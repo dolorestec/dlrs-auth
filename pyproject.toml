@@ -30,7 +30,7 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "httpx>=0.27.0",
     "asyncpg>=0.29.0",
-    "aioredis>=2.0.0",
+    "redis[asyncio]>=5.0.0",
     "aio-pika>=9.4.0",
     "structlog>=24.4.0",
     "email-validator>=2.3.0",
@@ -101,6 +101,9 @@ exclude_lines = [
 [tool.bandit]
 exclude_dirs = ["tests"]
 skips = ["B101", "B608"]  # B101: assert used, B608: hardcoded SQL expressions (false positive for parameterized queries)
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
 
 [dependency-groups]
 dev = [
