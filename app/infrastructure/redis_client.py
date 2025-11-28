@@ -54,7 +54,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return cast("int", await self._client.delete(key))
+            return await self._client.delete(key)
         return 0
 
     async def exists(self, key: str) -> bool:
@@ -71,7 +71,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return cast("int", await self._client.incr(key))
+            return await self._client.incr(key)
         return 0
 
     async def expire(self, key: str, time: int) -> bool:
@@ -79,7 +79,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return cast("bool", await self._client.expire(key, time))
+            return await self._client.expire(key, time)
         return False
 
     async def get_json(self, key: str) -> Any | None:

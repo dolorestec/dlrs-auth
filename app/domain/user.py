@@ -45,12 +45,12 @@ class User(BaseModel):
 
     def verify_password(self, password: str) -> bool:
         """Verify plain password against hashed password."""
-        return pwd_context.verify(password, self.hashed_password)
+        return pwd_context.verify(password, self.hashed_password)  # type: ignore[no-any-return]
 
     @classmethod
     def hash_password(cls, password: str) -> str:
         """Hash plain password."""
-        return pwd_context.hash(password)
+        return pwd_context.hash(password)  # type: ignore[no-any-return]
 
 
 class UserCreate(BaseModel):

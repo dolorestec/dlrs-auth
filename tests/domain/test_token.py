@@ -5,8 +5,8 @@ Tests for Token domain entity.
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
-from jose import jwt  # type: ignore[import]
 import pytest
+from jose import jwt  # type: ignore[import]
 
 from app.domain.token import Token, TokenData
 

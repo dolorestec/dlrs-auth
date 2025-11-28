@@ -29,7 +29,7 @@ class TestRedisClient:
             "app.infrastructure.redis_client.Redis.from_url", return_value=mock_redis
         ):
             await redis_client.connect()
-            assert redis_client._client is not None
+            assert redis_client._client is not None  # noqa: SLF001
 
     @pytest.mark.asyncio
     async def test_connect_failure(self, redis_client: RedisClient) -> None:
@@ -139,4 +139,4 @@ class TestRedisClient:
         with patch.object(redis_client, "_client", mock_redis):
             await redis_client.disconnect()
             mock_redis.close.assert_called_once()
-            assert redis_client._client is None
+            assert redis_client._client is None  # noqa: SLF001

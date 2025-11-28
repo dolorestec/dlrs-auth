@@ -25,7 +25,7 @@ router = APIRouter()
             },
         }
     },
-)
+)  # type: ignore[misc]
 async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy", "service": "dlrs-auth"}

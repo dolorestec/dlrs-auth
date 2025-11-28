@@ -4,8 +4,8 @@ Integration tests for authentication flow.
 Tests complete end-to-end authentication scenarios using mocked dependencies.
 """
 
-from unittest.mock import AsyncMock, MagicMock
 import os
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     # Server
     SERVER_NAME: str = "test-server"
-    SERVER_HOST: AnyHttpUrl = "http://localhost"  # type: ignore[assignment]
+    SERVER_HOST: AnyHttpUrl = "http://localhost"
     SERVER_PORT: int = 8000
 
     # CORS

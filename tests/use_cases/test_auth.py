@@ -60,7 +60,7 @@ class TestLoginUseCase:
             is_active=True,
         )
 
-    async def test_successful_login(
+    async def test_successful_login(  # noqa: PLR0913
         self,
         login_use_case: LoginUseCase,
         mock_user_repository: IUserRepository,
@@ -73,11 +73,11 @@ class TestLoginUseCase:
     ) -> None:
         """Test successful login."""
         # Setup mocks
-        mock_user_repository.get_by_email = AsyncMock(return_value=active_user)
-        mock_cache.incr = AsyncMock(return_value=1)
-        mock_cache.expire = AsyncMock()
-        mock_cache.delete = AsyncMock()
-        mock_event_publisher.publish_user_logged_in = AsyncMock()
+        mock_user_repository.get_by_email = AsyncMock(return_value=active_user)  # type: ignore[method-assign]
+        mock_cache.incr = AsyncMock(return_value=1)  # type: ignore[method-assign]
+        mock_cache.expire = AsyncMock()  # type: ignore[method-assign]
+        mock_cache.delete = AsyncMock()  # type: ignore[method-assign]
+        mock_event_publisher.publish_user_logged_in = AsyncMock()  # type: ignore[method-assign]
 
         # Execute
         request = LoginRequest(email=fake_email, password=fake_password)
@@ -108,9 +108,9 @@ class TestLoginUseCase:
     ) -> None:
         """Test login with non-existent user."""
         # Setup mocks
-        mock_user_repository.get_by_email = AsyncMock(return_value=None)
-        mock_cache.incr = AsyncMock(return_value=1)
-        mock_cache.expire = AsyncMock()
+        mock_user_repository.get_by_email = AsyncMock(return_value=None)  # type: ignore[method-assign]
+        mock_cache.incr = AsyncMock(return_value=1)  # type: ignore[method-assign]
+        mock_cache.expire = AsyncMock()  # type: ignore[method-assign]
 
         # Execute and assert
         request = LoginRequest(email=fake_email, password=fake_password)
@@ -122,7 +122,7 @@ class TestLoginUseCase:
         mock_cache.incr.assert_called_once_with(f"login_attempts:{fake_email}")
         mock_cache.expire.assert_called_once()
 
-    async def test_login_inactive_user(
+    async def test_login_inactive_user(  # noqa: PLR0913
         self,
         login_use_case: LoginUseCase,
         mock_user_repository: IUserRepository,
@@ -139,16 +139,16 @@ class TestLoginUseCase:
             hashed_password=mock_pwd_context_hash.return_value,
             is_active=False,
         )
-        mock_user_repository.get_by_email = AsyncMock(return_value=inactive_user)
-        mock_cache.incr = AsyncMock(return_value=1)
-        mock_cache.expire = AsyncMock()
+        mock_user_repository.get_by_email = AsyncMock(return_value=inactive_user)  # type: ignore[method-assign]
+        mock_cache.incr = AsyncMock(return_value=1)  # type: ignore[method-assign]
+        mock_cache.expire = AsyncMock()  # type: ignore[method-assign]
 
         # Execute and assert
         request = LoginRequest(email=fake_email, password=fake_password)
         with pytest.raises(ValueError, match="Invalid credentials"):
             await login_use_case.execute(request)
 
-    async def test_login_wrong_password(
+    async def test_login_wrong_password(  # noqa: PLR0913
         self,
         login_use_case: LoginUseCase,
         mock_user_repository: IUserRepository,
@@ -159,9 +159,9 @@ class TestLoginUseCase:
     ) -> None:
         """Test login with wrong password."""
         # Setup mocks
-        mock_user_repository.get_by_email = AsyncMock(return_value=active_user)
-        mock_cache.incr = AsyncMock(return_value=1)
-        mock_cache.expire = AsyncMock()
+        mock_user_repository.get_by_email = AsyncMock(return_value=active_user)  # type: ignore[method-assign]
+        mock_cache.incr = AsyncMock(return_value=1)  # type: ignore[method-assign]
+        mock_cache.expire = AsyncMock()  # type: ignore[method-assign]
         mock_pwd_context_verify.return_value = False  # Wrong password
 
         # Execute and assert
@@ -170,9 +170,9 @@ class TestLoginUseCase:
             await login_use_case.execute(request)
 
         # Verify rate limit not reset
-        mock_cache.delete.assert_not_called()
+        mock_cache.delete.assert_not_called()  # type: ignore[attr-defined]
 
-    async def test_login_rate_limit_exceeded(
+    async def test_login_rate_limit_exceeded(  # noqa: PLR0913
         self,
         login_use_case: LoginUseCase,
         mock_user_repository: IUserRepository,
@@ -183,8 +183,12 @@ class TestLoginUseCase:
     ) -> None:
         """Test login when rate limit is exceeded."""
         # Setup mocks
-        mock_cache.incr = AsyncMock(return_value=6)  # Exceeds limit
-        mock_user_repository.get_by_email = AsyncMock()  # Should not be called
+        mock_cache.incr = AsyncMock(  # type: ignore[method-assign]
+            return_value=6
+        )  # Exceeds limit
+        mock_user_repository.get_by_email = (  # type: ignore[method-assign]
+            AsyncMock()
+        )  # Should not be called
 
         # Patch settings in the use case module
         with patch("app.use_cases.auth.settings", mock_settings):
