@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 
 from app.infrastructure.postgres_adapter import PostgresUserRepository
+from app.infrastructure.redis_client import RedisClient
 from app.use_cases.auth import (
     LoginRequest,
     LoginUseCase,
@@ -27,16 +28,31 @@ PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"
 router = APIRouter()
 security = HTTPBearer()
 
+# TODO: Remove these placeholders when implementing real token extraction from requests
+# Temporary constants until proper token extraction from Authorization headers
+# is implemented
+PLACEHOLDER_TOKEN = "placeholder_token"
+PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"
+
+router = APIRouter()
+security = HTTPBearer()
+
 
 async def get_user_repository() -> PostgresUserRepository:
     """Dependency to get user repository."""
     return PostgresUserRepository()
 
 
+async def get_cache() -> RedisClient:
+    """Dependency to get cache client."""
+    return redis_client
+
+
 async def get_login_use_case() -> LoginUseCase:
     """Dependency to get login use case."""
     repo = await get_user_repository()
-    return LoginUseCase(repo)
+    cache = await get_cache()
+    return LoginUseCase(repo, cache)
 
 
 async def get_validate_use_case() -> ValidateTokenUseCase:
