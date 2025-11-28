@@ -41,8 +41,12 @@ class TestRabbitMQEventPublisher:
         mock_settings,
     ) -> None:
         """Test successful connection to RabbitMQ."""
-        with patch("aio_pika.connect_robust", return_value=mock_connection) as mock_connect, \
-             patch("app.infrastructure.rabbitmq_adapter.settings", mock_settings):
+        with (
+            patch(
+                "aio_pika.connect_robust", return_value=mock_connection
+            ) as mock_connect,
+            patch("app.infrastructure.rabbitmq_adapter.settings", mock_settings),
+        ):
             mock_connection.channel.return_value = mock_channel
             mock_channel.declare_exchange.return_value = mock_exchange
 
@@ -74,7 +78,9 @@ class TestRabbitMQEventPublisher:
         self, publisher: RabbitMQEventPublisher, mock_settings
     ) -> None:
         """Test connection failure."""
-        with patch("aio_pika.connect_robust", side_effect=Exception("Connection failed")):
+        with patch(
+            "aio_pika.connect_robust", side_effect=Exception("Connection failed")
+        ):
             with pytest.raises(Exception, match="Connection failed"):
                 await publisher.connect()
 
@@ -97,7 +103,9 @@ class TestRabbitMQEventPublisher:
         assert publisher._channel is None
         assert publisher._exchange is None
 
-    async def test_disconnect_not_connected(self, publisher: RabbitMQEventPublisher) -> None:
+    async def test_disconnect_not_connected(
+        self, publisher: RabbitMQEventPublisher
+    ) -> None:
         """Test disconnect when not connected."""
         await publisher.disconnect()
 
@@ -218,8 +226,10 @@ class TestRabbitMQEventPublisher:
         mock_settings,
     ) -> None:
         """Test _publish_event without connection (should connect first)."""
-        with patch("aio_pika.connect_robust", return_value=mock_connection), \
-             patch("app.infrastructure.rabbitmq_adapter.settings", mock_settings):
+        with (
+            patch("aio_pika.connect_robust", return_value=mock_connection),
+            patch("app.infrastructure.rabbitmq_adapter.settings", mock_settings),
+        ):
             mock_connection.channel.return_value = mock_channel
             mock_channel.declare_exchange.return_value = mock_exchange
 
