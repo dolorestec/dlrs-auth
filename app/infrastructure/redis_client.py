@@ -7,7 +7,7 @@ Following Clean Architecture principles.
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, cast
 
 from redis.asyncio import Redis
 
@@ -37,7 +37,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return await self._client.get(key)
+            return cast("str | None", await self._client.get(key))
         return None
 
     async def set(self, key: str, value: str, expire: int | None = None) -> bool:
@@ -54,7 +54,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return await self._client.delete(key)
+            return cast("int", await self._client.delete(key))
         return 0
 
     async def exists(self, key: str) -> bool:
@@ -63,7 +63,7 @@ class RedisClient(ICache):
             await self.connect()
         if self._client:
             result = await self._client.exists(key)
-            return bool(result)
+            return cast("bool", result)
         return False
 
     async def incr(self, key: str) -> int:
@@ -71,7 +71,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return await self._client.incr(key)
+            return cast("int", await self._client.incr(key))
         return 0
 
     async def expire(self, key: str, time: int) -> bool:
@@ -79,7 +79,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return await self._client.expire(key, time)
+            return cast("bool", await self._client.expire(key, time))
         return False
 
     async def get_json(self, key: str) -> Any | None:

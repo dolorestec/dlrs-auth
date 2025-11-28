@@ -24,14 +24,7 @@ def test_password() -> str:
 
 @pytest.fixture
 async def repo():
-    repo = PostgresUserRepository()
-    # Mock the pool for testing
-    mock_pool = AsyncMock()
-    mock_conn = AsyncMock()
-    mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-    mock_pool.acquire.return_value.__aexit__ = AsyncMock()
-    repo._pool = mock_pool
-    return repo
+    return PostgresUserRepository()
 
 
 @pytest.mark.asyncio

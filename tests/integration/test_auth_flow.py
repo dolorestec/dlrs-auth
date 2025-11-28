@@ -5,6 +5,7 @@ Tests complete end-to-end authentication scenarios using mocked dependencies.
 """
 
 from unittest.mock import AsyncMock, MagicMock
+import os
 
 import pytest
 from fastapi.testclient import TestClient
@@ -25,7 +26,6 @@ RATE_LIMIT_REQUESTS = 10
 @pytest.fixture(scope="session")
 async def test_settings() -> Settings:
     """Test settings with mocked URLs."""
-    import os
 
     # Set environment variables for Settings
     os.environ["POSTGRES_SERVER"] = "localhost"
@@ -56,7 +56,6 @@ async def test_settings() -> Settings:
 @pytest.fixture(scope="session")
 def test_client() -> TestClient:
     """HTTP test client for the FastAPI app."""
-    from fastapi.testclient import TestClient
 
     # Override settings in the app
     app.dependency_overrides = {}
@@ -67,9 +66,7 @@ def test_client() -> TestClient:
 class TestAuthIntegration:
     """Integration tests for complete authentication flow."""
 
-    def test_complete_auth_flow(
-        self, test_client, mock_postgres_repository, patch_redis_client
-    ) -> None:
+    def test_complete_auth_flow(self, test_client, mock_postgres_repository) -> None:
         """Test complete authentication flow: login, validate token, refresh."""
         # Configure mock user for this test
         mock_user = MagicMock()
@@ -101,9 +98,7 @@ class TestAuthIntegration:
         refresh_response = test_client.post("/api/v1/auth/refresh")
         assert refresh_response.status_code == HTTP_200_OK
 
-    def test_rate_limiting(
-        self, test_client, mock_rate_limiting_redis, mock_postgres_repository
-    ) -> None:
+    def test_rate_limiting(self, test_client, mock_postgres_repository) -> None:
         """Test rate limiting functionality."""
         # Configure mock user for this test
         mock_user = MagicMock()
@@ -127,7 +122,7 @@ class TestAuthIntegration:
             else:
                 assert response.status_code == HTTP_401_UNAUTHORIZED  # Rate limited
 
-    def test_invalid_credentials(self, test_client, patch_redis_client) -> None:
+    def test_invalid_credentials(self, test_client) -> None:
         """Test login with invalid credentials."""
         # The mock is already configured to return None for get_by_email
         login_data = {
@@ -141,7 +136,7 @@ class TestAuthIntegration:
         error_data = response.json()
         assert "detail" in error_data
 
-    def test_expired_token(self, test_client, patch_redis_client) -> None:
+    def test_expired_token(self, test_client) -> None:
         """Test validation of expired token."""
         # Since validate endpoint uses placeholder, it should return 200
         # This test needs to be updated when token validation is properly implemented
@@ -153,7 +148,6 @@ class TestAuthIntegration:
         test_client,
         mock_postgres_repository,
         mock_rabbitmq_publisher,
-        patch_redis_client,
     ) -> None:
         """Test that authentication events are published to RabbitMQ."""
         # Configure mock user for this test

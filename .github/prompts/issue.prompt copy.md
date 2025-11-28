@@ -9,7 +9,7 @@ Automatize o processo completo de desenvolvimento para uma issue do GitHub, desd
 
 ## Requisitos Específicos
 - Buscar lista de issues abertas no repositório dlrs-auth
-- Identificar a issue informada pelo usuário
+- Selecionar a issue mais antiga (por data de criação)
 - Atualizar repositório local (pull develop)
 - Criar branch nomeada por tipo (feature/bugfix)/DLRS-{numero}
 - Analisar descrição da issue para entender requisitos
@@ -20,7 +20,7 @@ Automatize o processo completo de desenvolvimento para uma issue do GitHub, desd
 
 ## Passos de Execução (Divididos para Clareza)
 1. **Buscar Issues**: Listar issues abertas via GitHub API
-2. **Filtrar Issue**: Selecionar a issue informada pelo usuário
+2. **Filtrar Issue**: Selecionar a mais antiga por createdAt
 3. **Atualizar Repositório**: git pull origin develop
 4. **Criar Branch**: git checkout -b {tipo}/DLRS-{numero}
 5. **Analisar Tarefa**: Ler título, descrição, labels da issue
@@ -39,7 +39,6 @@ Automatize o processo completo de desenvolvimento para uma issue do GitHub, desd
 - Seguir padrões de commit (Conventional Commits)
 - Não mergear PR; apenas criar
 - Usar labels da issue para determinar tipo (enhancement=feature, bug=bugfix)
-- Verificar se a issue possue milestone e projecto associado
 - Leia as documentações de referência se necessário, para tirar dúvidas.
 
 ## Critérios de Sucesso

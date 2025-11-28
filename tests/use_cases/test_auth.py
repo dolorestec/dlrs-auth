@@ -51,7 +51,6 @@ class TestLoginUseCase:
         fake_email: str,
         fake_password: str,
         fake_user_id: int,
-        mock_pwd_context_hash,
     ) -> User:
         """Active user fixture."""
         return User(
@@ -71,7 +70,6 @@ class TestLoginUseCase:
         fake_email: str,
         fake_password: str,
         fake_user_id: int,
-        mock_pwd_context_hash,
     ) -> None:
         """Test successful login."""
         # Setup mocks
@@ -193,7 +191,7 @@ class TestLoginUseCase:
             # Execute and assert
             request = LoginRequest(email=fake_email, password=fake_password)
             with pytest.raises(
-                ValueError, match="Too many login attempts. Please try again later."
+                ValueError, match=r"Too many login attempts. Please try again later."
             ):
                 await login_use_case.execute(request)
 

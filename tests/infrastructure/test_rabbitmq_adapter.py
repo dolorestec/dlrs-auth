@@ -5,6 +5,7 @@ Tests for RabbitMQ event publisher adapter.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from aio_pika import DeliveryMode
 
 from app.infrastructure.rabbitmq_adapter import RabbitMQEventPublisher
 
@@ -74,15 +75,15 @@ class TestRabbitMQEventPublisher:
         # Should not attempt to connect again
         assert publisher._connection == mock_connection
 
-    async def test_connect_failure(
-        self, publisher: RabbitMQEventPublisher, mock_settings
-    ) -> None:
+    async def test_connect_failure(self, publisher: RabbitMQEventPublisher) -> None:
         """Test connection failure."""
-        with patch(
-            "aio_pika.connect_robust", side_effect=Exception("Connection failed")
+        with (
+            patch(
+                "aio_pika.connect_robust", side_effect=Exception("Connection failed")
+            ),
+            pytest.raises(Exception, match="Connection failed"),
         ):
-            with pytest.raises(Exception, match="Connection failed"):
-                await publisher.connect()
+            await publisher.connect()
 
     async def test_disconnect(
         self,
@@ -213,7 +214,7 @@ class TestRabbitMQEventPublisher:
         mock_exchange.publish.assert_called_once()
         message = mock_exchange.publish.call_args[0][0]
         assert message.body == b'{"test": "data"}'
-        assert message.delivery_mode == 2  # PERSISTENT
+        assert message.delivery_mode == DeliveryMode.PERSISTENT
         assert message.content_type == "application/json"
         assert mock_exchange.publish.call_args[1]["routing_key"] == routing_key
 

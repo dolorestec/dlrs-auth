@@ -5,6 +5,7 @@ Tests for Token domain entity.
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
+from jose import jwt  # type: ignore[import]
 import pytest
 
 from app.domain.token import Token, TokenData
@@ -156,9 +157,11 @@ class TestToken:
 
     def test_decode_invalid_token(self, mock_settings) -> None:
         """Test decoding an invalid token."""
-        with patch("app.domain.token.settings", mock_settings):
-            with pytest.raises(Exception):  # jwt.exceptions.DecodeError
-                Token.decode_token("invalid_token")
+        with (
+            patch("app.domain.token.settings", mock_settings),
+            pytest.raises(jwt.DecodeError),
+        ):
+            Token.decode_token("invalid_token")
 
 
 class TestTokenData:
