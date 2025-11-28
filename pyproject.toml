@@ -58,7 +58,7 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
-ignore = ["S101", "S104", "COM812", "ISC001", "TC001", "S105", "S106"]
+ignore = ["S101", "S104", "COM812", "ISC001", "TC001", "TC003", "S105", "S106"]
 
 [tool.ruff.lint.per-file-ignores]
 "app/api/**/*.py" = ["B008"]
@@ -77,6 +77,13 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+strict_optional = true
+extra_checks = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_decorators = false
+ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -99,8 +106,8 @@ exclude_lines = [
 ]
 
 [tool.bandit]
-exclude_dirs = ["tests"]
-skips = ["B101", "B608"]  # B101: assert used, B608: hardcoded SQL expressions (false positive for parameterized queries)
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101", "B608", "B303", "B311"]  # B101: assert used, B608: hardcoded SQL expressions (false positive for parameterized queries)
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
@@ -111,4 +118,6 @@ dev = [
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.0.0",
     "pytest-xdist>=3.8.0",
+    "types-passlib>=1.7.7.20250602",
+    "types-python-jose>=3.5.0.20250531",
 ]

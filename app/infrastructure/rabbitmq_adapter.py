@@ -23,9 +23,9 @@ class RabbitMQEventPublisher(IEventPublisher):
     """RabbitMQ event publisher adapter."""
 
     def __init__(self) -> None:
-        self._connection: aio_pika.Connection | None = None
-        self._channel: aio_pika.Channel | None = None
-        self._exchange: aio_pika.Exchange | None = None
+        self._connection: Any = None
+        self._channel: Any = None
+        self._exchange: Any = None
 
     async def connect(self) -> None:
         """Connect to RabbitMQ and setup exchange."""

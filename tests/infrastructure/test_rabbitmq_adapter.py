@@ -5,6 +5,7 @@ Tests for RabbitMQ event publisher adapter.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from aio_pika import DeliveryMode
 
 from app.infrastructure.rabbitmq_adapter import RabbitMQEventPublisher
 
@@ -59,30 +60,30 @@ class TestRabbitMQEventPublisher:
                 type="topic",
                 durable=True,
             )
-            assert publisher._connection == mock_connection
-            assert publisher._channel == mock_channel
-            assert publisher._exchange == mock_exchange
+            assert publisher._connection == mock_connection  # noqa: SLF001
+            assert publisher._channel == mock_channel  # noqa: SLF001
+            assert publisher._exchange == mock_exchange  # noqa: SLF001
 
     async def test_connect_already_connected(
         self, publisher: RabbitMQEventPublisher, mock_connection: AsyncMock
     ) -> None:
         """Test connect when already connected."""
-        publisher._connection = mock_connection
+        publisher._connection = mock_connection  # noqa: SLF001
 
         await publisher.connect()
 
         # Should not attempt to connect again
-        assert publisher._connection == mock_connection
+        assert publisher._connection == mock_connection  # noqa: SLF001
 
-    async def test_connect_failure(
-        self, publisher: RabbitMQEventPublisher, mock_settings
-    ) -> None:
+    async def test_connect_failure(self, publisher: RabbitMQEventPublisher) -> None:
         """Test connection failure."""
-        with patch(
-            "aio_pika.connect_robust", side_effect=Exception("Connection failed")
+        with (
+            patch(
+                "aio_pika.connect_robust", side_effect=Exception("Connection failed")
+            ),
+            pytest.raises(Exception, match="Connection failed"),
         ):
-            with pytest.raises(Exception, match="Connection failed"):
-                await publisher.connect()
+            await publisher.connect()
 
     async def test_disconnect(
         self,
@@ -92,16 +93,16 @@ class TestRabbitMQEventPublisher:
         mock_exchange: AsyncMock,
     ) -> None:
         """Test disconnect from RabbitMQ."""
-        publisher._connection = mock_connection
-        publisher._channel = mock_channel
-        publisher._exchange = mock_exchange
+        publisher._connection = mock_connection  # noqa: SLF001
+        publisher._channel = mock_channel  # noqa: SLF001
+        publisher._exchange = mock_exchange  # noqa: SLF001
 
         await publisher.disconnect()
 
         mock_connection.close.assert_called_once()
-        assert publisher._connection is None
-        assert publisher._channel is None
-        assert publisher._exchange is None
+        assert publisher._connection is None  # noqa: SLF001
+        assert publisher._channel is None  # noqa: SLF001
+        assert publisher._exchange is None  # noqa: SLF001
 
     async def test_disconnect_not_connected(
         self, publisher: RabbitMQEventPublisher
@@ -110,7 +111,7 @@ class TestRabbitMQEventPublisher:
         await publisher.disconnect()
 
         # Should not raise error
-        assert publisher._connection is None
+        assert publisher._connection is None  # noqa: SLF001
 
     async def test_publish_user_logged_in(
         self,
@@ -118,7 +119,7 @@ class TestRabbitMQEventPublisher:
         mock_exchange: AsyncMock,
     ) -> None:
         """Test publishing user logged in event."""
-        publisher._exchange = mock_exchange
+        publisher._exchange = mock_exchange  # noqa: SLF001
 
         with patch.object(publisher, "_publish_event") as mock_publish:
             await publisher.publish_user_logged_in(1, "user@example.com", "192.168.1.1")
@@ -140,7 +141,7 @@ class TestRabbitMQEventPublisher:
         mock_exchange: AsyncMock,
     ) -> None:
         """Test publishing user logged in event without IP."""
-        publisher._exchange = mock_exchange
+        publisher._exchange = mock_exchange  # noqa: SLF001
 
         with patch.object(publisher, "_publish_event") as mock_publish:
             await publisher.publish_user_logged_in(1, "user@example.com")
@@ -162,7 +163,7 @@ class TestRabbitMQEventPublisher:
         mock_exchange: AsyncMock,
     ) -> None:
         """Test publishing token revoked event."""
-        publisher._exchange = mock_exchange
+        publisher._exchange = mock_exchange  # noqa: SLF001
 
         with patch.object(publisher, "_publish_event") as mock_publish:
             await publisher.publish_token_revoked(1, "access")
@@ -183,7 +184,7 @@ class TestRabbitMQEventPublisher:
         mock_exchange: AsyncMock,
     ) -> None:
         """Test publishing password changed event."""
-        publisher._exchange = mock_exchange
+        publisher._exchange = mock_exchange  # noqa: SLF001
 
         with patch.object(publisher, "_publish_event") as mock_publish:
             await publisher.publish_password_changed(1)
@@ -203,17 +204,17 @@ class TestRabbitMQEventPublisher:
         mock_exchange: AsyncMock,
     ) -> None:
         """Test _publish_event with existing connection."""
-        publisher._exchange = mock_exchange
+        publisher._exchange = mock_exchange  # noqa: SLF001
 
         event_data = {"test": "data"}
         routing_key = "test.key"
 
-        await publisher._publish_event(routing_key, event_data)
+        await publisher._publish_event(routing_key, event_data)  # noqa: SLF001
 
         mock_exchange.publish.assert_called_once()
         message = mock_exchange.publish.call_args[0][0]
         assert message.body == b'{"test": "data"}'
-        assert message.delivery_mode == 2  # PERSISTENT
+        assert message.delivery_mode == DeliveryMode.PERSISTENT
         assert message.content_type == "application/json"
         assert mock_exchange.publish.call_args[1]["routing_key"] == routing_key
 
@@ -236,7 +237,7 @@ class TestRabbitMQEventPublisher:
             event_data = {"test": "data"}
             routing_key = "test.key"
 
-            await publisher._publish_event(routing_key, event_data)
+            await publisher._publish_event(routing_key, event_data)  # noqa: SLF001
 
             # Should have connected first
             mock_exchange.publish.assert_called_once()

@@ -41,7 +41,7 @@ class Token(BaseModel):
             )
 
         to_encode = {"exp": expire, "sub": str(subject), "type": "access"}
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)  # type: ignore[no-any-return]
 
     @classmethod
     def create_refresh_token(
@@ -56,12 +56,12 @@ class Token(BaseModel):
             )
 
         to_encode = {"exp": expire, "sub": str(subject), "type": "refresh"}
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)  # type: ignore[no-any-return]
 
     @classmethod
     def decode_token(cls, token: str) -> dict[str, Any]:
         """Decode and validate JWT token."""
-        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])  # type: ignore[no-any-return]
 
     @classmethod
     def create_token_pair(cls, subject: str | int) -> Token:

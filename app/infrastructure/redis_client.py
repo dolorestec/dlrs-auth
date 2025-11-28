@@ -7,7 +7,7 @@ Following Clean Architecture principles.
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, cast
 
 from redis.asyncio import Redis
 
@@ -37,7 +37,7 @@ class RedisClient(ICache):
         if not self._client:
             await self.connect()
         if self._client:
-            return await self._client.get(key)
+            return cast("str | None", await self._client.get(key))
         return None
 
     async def set(self, key: str, value: str, expire: int | None = None) -> bool:
@@ -63,7 +63,7 @@ class RedisClient(ICache):
             await self.connect()
         if self._client:
             result = await self._client.exists(key)
-            return bool(result)
+            return cast("bool", result)
         return False
 
     async def incr(self, key: str) -> int:

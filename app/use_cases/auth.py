@@ -110,6 +110,6 @@ class RefreshTokenUseCase:
 
         # Placeholder response
         return TokenResponse(
-            access_token="new_access_token",
-            refresh_token="new_refresh_token",
+            access_token="new_access_token",  # nosec B106
+            refresh_token="new_refresh_token",  # nosec B106
         )

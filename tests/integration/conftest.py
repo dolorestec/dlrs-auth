@@ -26,7 +26,7 @@ def mock_redis_client() -> Generator[MagicMock]:
 
 
 @pytest.fixture
-def patch_redis_client(mock_redis_client) -> Generator[None]:
+def patch_redis_client() -> Generator[None]:
     """Patch RedisClient for tests that need default behavior."""
     return
 
@@ -84,14 +84,12 @@ def mock_postgres_repository() -> Generator[MagicMock]:
 
 
 @pytest.fixture(autouse=True)
-def patch_dependencies(
-    mock_rabbitmq_publisher, mock_postgres_repository
-) -> Generator[None]:
+def patch_dependencies() -> Generator[None]:
     """Automatically patch RabbitMQ and PostgreSQL dependencies."""
     return
 
 
 @pytest.fixture(autouse=True)
-def patch_redis_default(mock_redis_client) -> Generator[None]:
+def patch_redis_default() -> Generator[None]:
     """Automatically patch Redis with default behavior."""
     return

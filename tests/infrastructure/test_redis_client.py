@@ -29,7 +29,7 @@ class TestRedisClient:
             "app.infrastructure.redis_client.Redis.from_url", return_value=mock_redis
         ):
             await redis_client.connect()
-            assert redis_client._client is not None
+            assert redis_client._client is not None  # noqa: SLF001
 
     @pytest.mark.asyncio
     async def test_connect_failure(self, redis_client: RedisClient) -> None:
@@ -48,95 +48,95 @@ class TestRedisClient:
         """Test successful set operation."""
         mock_redis = AsyncMock()
         mock_redis.set.return_value = True
-        redis_client._client = mock_redis
 
-        result = await redis_client.set("key", "value")
-        assert result is True
-        mock_redis.set.assert_called_once_with("key", "value", ex=None)
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.set("key", "value")
+            assert result is True
+            mock_redis.set.assert_called_once_with("key", "value", ex=None)
 
     @pytest.mark.asyncio
     async def test_set_with_expiry(self, redis_client: RedisClient) -> None:
         """Test set operation with expiry."""
         mock_redis = AsyncMock()
         mock_redis.set.return_value = True
-        redis_client._client = mock_redis
 
-        result = await redis_client.set("key", "value", expire=300)
-        assert result is True
-        mock_redis.set.assert_called_once_with("key", "value", ex=300)
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.set("key", "value", expire=300)
+            assert result is True
+            mock_redis.set.assert_called_once_with("key", "value", ex=300)
 
     @pytest.mark.asyncio
     async def test_get_success(self, redis_client: RedisClient) -> None:
         """Test successful get operation."""
         mock_redis = AsyncMock()
         mock_redis.get.return_value = "value"
-        redis_client._client = mock_redis
 
-        result = await redis_client.get("key")
-        assert result == "value"
-        mock_redis.get.assert_called_once_with("key")
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.get("key")
+            assert result == "value"
+            mock_redis.get.assert_called_once_with("key")
 
     @pytest.mark.asyncio
     async def test_get_not_found(self, redis_client: RedisClient) -> None:
         """Test get operation when key not found."""
         mock_redis = AsyncMock()
         mock_redis.get.return_value = None
-        redis_client._client = mock_redis
 
-        result = await redis_client.get("nonexistent")
-        assert result is None
-        mock_redis.get.assert_called_once_with("nonexistent")
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.get("nonexistent")
+            assert result is None
+            mock_redis.get.assert_called_once_with("nonexistent")
 
     @pytest.mark.asyncio
     async def test_incr_success(self, redis_client: RedisClient) -> None:
         """Test successful incr operation."""
         mock_redis = AsyncMock()
         mock_redis.incr.return_value = INCREMENT_VALUE
-        redis_client._client = mock_redis
 
-        result = await redis_client.incr("counter")
-        assert result == INCREMENT_VALUE
-        mock_redis.incr.assert_called_once_with("counter")
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.incr("counter")
+            assert result == INCREMENT_VALUE
+            mock_redis.incr.assert_called_once_with("counter")
 
     @pytest.mark.asyncio
     async def test_expire_success(self, redis_client: RedisClient) -> None:
         """Test successful expire operation."""
         mock_redis = AsyncMock()
         mock_redis.expire.return_value = True
-        redis_client._client = mock_redis
 
-        result = await redis_client.expire("key", 300)
-        assert result is True
-        mock_redis.expire.assert_called_once_with("key", 300)
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.expire("key", 300)
+            assert result is True
+            mock_redis.expire.assert_called_once_with("key", 300)
 
     @pytest.mark.asyncio
     async def test_delete_success(self, redis_client: RedisClient) -> None:
         """Test successful delete operation."""
         mock_redis = AsyncMock()
         mock_redis.delete.return_value = 1
-        redis_client._client = mock_redis
 
-        result = await redis_client.delete("key")
-        assert result == 1
-        mock_redis.delete.assert_called_once_with("key")
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.delete("key")
+            assert result == 1
+            mock_redis.delete.assert_called_once_with("key")
 
     @pytest.mark.asyncio
     async def test_exists_success(self, redis_client: RedisClient) -> None:
         """Test successful exists operation."""
         mock_redis = AsyncMock()
         mock_redis.exists.return_value = True
-        redis_client._client = mock_redis
 
-        result = await redis_client.exists("key")
-        assert result is True
-        mock_redis.exists.assert_called_once_with("key")
+        with patch.object(redis_client, "_client", mock_redis):
+            result = await redis_client.exists("key")
+            assert result is True
+            mock_redis.exists.assert_called_once_with("key")
 
     @pytest.mark.asyncio
     async def test_disconnect_success(self, redis_client: RedisClient) -> None:
         """Test successful disconnect operation."""
         mock_redis = AsyncMock()
-        redis_client._client = mock_redis
 
-        await redis_client.disconnect()
-        mock_redis.close.assert_called_once()
-        assert redis_client._client is None
+        with patch.object(redis_client, "_client", mock_redis):
+            await redis_client.disconnect()
+            mock_redis.close.assert_called_once()
+            assert redis_client._client is None  # noqa: SLF001

@@ -10,8 +10,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 
 from app.infrastructure.postgres_adapter import PostgresUserRepository
-from app.infrastructure.rabbitmq_adapter import rabbitmq_publisher
-from app.infrastructure.redis_client import redis_client
+from app.infrastructure.rabbitmq_adapter import (
+    RabbitMQEventPublisher,
+    rabbitmq_publisher,
+)
+from app.infrastructure.redis_client import RedisClient, redis_client
 from app.use_cases.auth import (
     LoginRequest,
     LoginUseCase,
@@ -23,8 +26,8 @@ from app.use_cases.auth import (
 # TODO: Remove these placeholders when implementing real token extraction from requests
 # Temporary constants until proper token extraction from Authorization headers
 # is implemented
-PLACEHOLDER_TOKEN = "placeholder_token"
-PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"
+PLACEHOLDER_TOKEN = "placeholder_token"  # nosec B105
+PLACEHOLDER_REFRESH_TOKEN = "placeholder_refresh_token"  # nosec B105
 
 router = APIRouter()
 security = HTTPBearer()
@@ -35,12 +38,12 @@ async def get_user_repository() -> PostgresUserRepository:
     return PostgresUserRepository()
 
 
-async def get_cache() -> redis_client.__class__:
+async def get_cache() -> RedisClient:
     """Dependency to get cache client."""
     return redis_client
 
 
-async def get_event_publisher() -> rabbitmq_publisher.__class__:
+async def get_event_publisher() -> RabbitMQEventPublisher:
     """Dependency to get event publisher."""
     return rabbitmq_publisher
 
@@ -63,7 +66,7 @@ async def get_refresh_use_case() -> RefreshTokenUseCase:
     return RefreshTokenUseCase()
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse)  # type: ignore[misc]
 async def login(
     request: LoginRequest,
     use_case: LoginUseCase = Depends(get_login_use_case),
@@ -84,7 +87,7 @@ async def login(
         ) from e
 
 
-@router.post("/validate")
+@router.post("/validate")  # type: ignore[misc]
 async def validate_token(
     use_case: ValidateTokenUseCase = Depends(get_validate_use_case),
 ) -> dict[str, str]:
@@ -105,7 +108,7 @@ async def validate_token(
         ) from e
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=TokenResponse)  # type: ignore[misc]
 async def refresh_token(
     use_case: RefreshTokenUseCase = Depends(get_refresh_use_case),
 ) -> TokenResponse:
