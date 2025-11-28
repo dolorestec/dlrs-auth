@@ -50,6 +50,7 @@ dev = [
     "pre-commit>=4.0.0",
     "mkdocs>=1.6.0",
     "faker>=26.0.0",
+    "testcontainers[postgres,redis,rabbitmq]>=4.8.0",
 ]
 
 [tool.ruff]
