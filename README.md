@@ -10,7 +10,9 @@ Microserviço de Autenticação da Dolorestec, responsável pela gestão segura 
 
 ## 📋 Descrição Geral
 
-Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princípios de Clean Architecture e DDD. Ele centraliza todas as operações de autenticação, garantindo segurança stateless com JWT, hashing de senhas e refresh tokens. Integra-se com Redis para cache de sessões e RabbitMQ para eventos assíncronos.
+Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princípios de Clean Architecture e DDD. Ele centraliza **apenas operações de autenticação**, garantindo segurança stateless com JWT, hashing de senhas e refresh tokens. Integra-se com Redis para cache de sessões e RabbitMQ para eventos assíncronos.
+
+**Separação Arquitetural:** Este serviço foca exclusivamente em autenticação. Operações de gestão de usuários (CRUD completo) são realizadas pelo microserviço dedicado `dlrs-user-management` localizado em `/home/lucas/dolorestec/dlrs-user-management/`.
 
 ## 🚀 Funcionalidades Principais
 
@@ -20,6 +22,9 @@ Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princíp
 - **📊 Auditoria de Segurança**: Logs estruturados para tentativas de login, invalidações e anomalias.
 - **🔄 Integração Assíncrona**: Comunicação via RabbitMQ para eventos como "token_revoked".
 - **🌐 Suporte a OAuth2 Flows**: Password grant, client credentials.
+
+**Nota:** Operações de gestão de usuários (criação, atualização, exclusão) são realizadas pelo microserviço `dlrs-user-management`.
+
 - **📈 Escalabilidade**: Design assíncrono para suportar milhões de autenticações simultâneas.
 
 ## 🛠️ Tecnologias e Dependências
@@ -56,7 +61,7 @@ Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princíp
 
 ### Cache e Mensageria
 
-- **[aioredis](https://github.com/aio-libs/aioredis)** - Cliente Redis assíncrono.
+- **[redis[asyncio]](https://github.com/aio-libs/redis[asyncio])** - Cliente Redis assíncrono.
 - **[aio-pika](https://aio-pika.readthedocs.io/)** - Cliente RabbitMQ assíncrono.
 - **[RabbitMQ](https://www.rabbitmq.com/)** - Message broker para CQRS/Event Sourcing.
 
@@ -85,6 +90,13 @@ Este microserviço é desenvolvido com Python 3.14+ e FastAPI, seguindo princíp
 ### Documentação
 
 - **[MkDocs](https://www.mkdocs.org/)** - Gerador de documentação.
+- **[mkdocs-material](https://squidfunk.github.io/mkdocs-material/)** - Tema moderno para MkDocs.
+- **[mkdocstrings](https://mkdocstrings.github.io/)** - Documentação automática de código.
+- **[mkdocs-jinja2](# pesquisar na internet) - Suporte a templates Jinja2 no MkDocs.
+- **[mkdocs-swagger-ui](# pesquisar na internet) - Integração Swagger UI no MkDocs.
+- **[mkdocs[i18n]](https://mkdocs-i18n.readthedocs.io/)** - Suporte a internacionalização no MkDocs.
+- **["pydocstyle[toml]"](https://www.pydocstyle.org/en/stable/)** - Verificação de docstrings com suporte a configuração TOML.
+- **[Swagger UI](https://swagger.io/tools/swagger-ui/)** - Documentação interativa de APIs.
 
 ## 📚 Padrões Adotados
 
@@ -172,27 +184,27 @@ O microserviço de autenticação segue os princípios de **Clean Architecture**
 graph TD
     A[Cliente] --> B[API Gateway]
     B --> C[DLRS Auth Service]
-    
+
     subgraph "Presentation Layer"
         C1[FastAPI Routes]
     end
-    
+
     subgraph "Application Layer"
         C2[Auth Use Cases]
         C3[Token Validation]
     end
-    
+
     subgraph "Domain Layer"
         C4[User Entity]
         C5[JWT Rules]
     end
-    
+
     subgraph "Infrastructure Layer"
         C6[Redis Cache]
         C7[RabbitMQ Events]
         C8[PostgreSQL Queries]
     end
-    
+
     C --> C1
     C1 --> C2
     C1 --> C3

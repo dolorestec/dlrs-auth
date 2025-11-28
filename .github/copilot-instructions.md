@@ -12,7 +12,7 @@ The project follows Clean Architecture, Domain-Driven Design (DDD), and SOLID pr
 - **Target Runtime**: ASGI server (Uvicorn), designed for async I/O operations
 - **Project Type**: Microservice, RESTful API
 - **Size**: Small to medium, focused on authentication domain
-- **Key Technologies**: JWT (python-jose), bcrypt (passlib), asyncpg, aioredis, aio-pika, structlog
+- **Key Technologies**: JWT (python-jose), bcrypt (passlib), asyncpg, redis[asyncio], aio-pika, structlog
 
 ## Build, Test, Run, Lint Instructions
 
@@ -53,7 +53,7 @@ Each command should be run from the project root. Dependencies must be installed
 - **Presentation Layer**: `app/api/` - FastAPI routes for auth endpoints (login, validate, refresh)
 - **Application Layer**: `app/use_cases/` - Business logic for authentication, token management, rate limiting
 - **Domain Layer**: `app/domain/` - Entities (User, Token), value objects, domain rules
-- **Infrastructure Layer**: `app/infrastructure/` - Adapters for PostgreSQL (asyncpg), Redis (aioredis), RabbitMQ (aio-pika)
+- **Infrastructure Layer**: `app/infrastructure/` - Adapters for PostgreSQL (asyncpg), Redis (redis[asyncio]), RabbitMQ (aio-pika)
 
 ### Configuration Files
 - `pyproject.toml`: Project config, dependencies, tool settings (ruff, mypy)
@@ -67,7 +67,7 @@ Each command should be run from the project root. Dependencies must be installed
 
 ### Dependencies
 - Core: fastapi, uvicorn, pydantic, python-jose[cryptography], passlib[bcrypt]
-- Async: asyncpg, aioredis, aio-pika, httpx
+- Async: asyncpg, redis[asyncio], aio-pika, httpx
 - Quality: ruff, mypy, pytest, pytest-asyncio, structlog
 - Docs: mkdocs
 
@@ -98,5 +98,6 @@ No complex migrations; simple queries via asyncpg. Redis for cache/sessions, Rab
 - Ensure complete Swagger documentation with detailed descriptions, examples, and responses for all endpoints
 - Apply SOLID principles: Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
 - Do not hardcode sensitive data; use environment variables for secrets
+- **Type Annotations**: Always use `from __future__ import annotations` at the top of modules instead of `TYPE_CHECKING` for conditional imports. This ensures type annotations are strings and avoids runtime dependencies on type-only imports.
 
 Trust these instructions; they are validated and up-to-date. If something is unclear, check the README or pyproject.toml for details.

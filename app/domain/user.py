@@ -4,8 +4,12 @@ Domain entities for Dolorestec Auth.
 Following Domain-Driven Design principles.
 """
 
-from datetime import datetime, UTC
-from pydantic import BaseModel, EmailStr, Field
+from datetime import UTC, datetime
+
+from passlib.context import CryptContext
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class User(BaseModel):
@@ -23,8 +27,7 @@ class User(BaseModel):
         default_factory=lambda: datetime.now(UTC), description="Last update timestamp"
     )
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
     def update_timestamp(self) -> None:
         """Update the updated_at timestamp."""
@@ -39,6 +42,15 @@ class User(BaseModel):
         """Activate user account."""
         self.is_active = True
         self.update_timestamp()
+
+    def verify_password(self, password: str) -> bool:
+        """Verify plain password against hashed password."""
+        return pwd_context.verify(password, self.hashed_password)
+
+    @classmethod
+    def hash_password(cls, password: str) -> str:
+        """Hash plain password."""
+        return pwd_context.hash(password)
 
 
 class UserCreate(BaseModel):
