@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 
-@pytest.fixture(autouse=True)
-def patch_redis_client() -> Generator[None]:
-    """Automatically patch RedisClient to avoid connection issues."""
+@pytest.fixture
+def mock_redis_client() -> Generator[MagicMock]:
+    """Fixture for Redis client with default behavior (incr returns 1)."""
     mock_redis = MagicMock()
     mock_redis.incr = AsyncMock(return_value=1)
     mock_redis.expire = AsyncMock(return_value=True)
@@ -22,48 +22,13 @@ def patch_redis_client() -> Generator[None]:
         patch("app.infrastructure.redis_client.redis_client", mock_redis),
         patch("app.api.v1.endpoints.auth.get_cache", return_value=mock_redis),
     ):
-        yield
+        yield mock_redis
 
 
-@pytest.fixture(autouse=True)
-def patch_rabbitmq_publisher() -> Generator[None]:
-    """Automatically patch RabbitMQ publisher."""
-    mock_publisher = MagicMock()
-    mock_publisher.publish_user_logged_in = AsyncMock()
-    mock_publisher.publish_token_revoked = AsyncMock()
-    mock_publisher.publish_password_changed = AsyncMock()
-
-    with (
-        patch("app.infrastructure.rabbitmq_adapter.rabbitmq_publisher", mock_publisher),
-        patch(
-            "app.api.v1.endpoints.auth.get_event_publisher", return_value=mock_publisher
-        ),
-    ):
-        yield
-
-
-@pytest.fixture(autouse=True)
-def patch_postgres_repository() -> Generator[None]:
-    """Automatically patch PostgreSQL repository."""
-    mock_repo = MagicMock()
-    mock_user = MagicMock()
-    mock_user.id = 1
-    mock_user.email = "test@example.com"
-    mock_user.is_active = True
-    # Will be configured per test
-    mock_user.verify_password = MagicMock(return_value=False)
-
-    # Will be configured per test
-    mock_repo.get_by_email = AsyncMock(return_value=None)
-
-    async def mock_get_user_repository():
-        return mock_repo
-
-    with patch(
-        "app.api.v1.endpoints.auth.get_user_repository",
-        side_effect=mock_get_user_repository,
-    ):
-        yield
+@pytest.fixture
+def patch_redis_client(mock_redis_client) -> Generator[None]:
+    """Patch RedisClient for tests that need default behavior."""
+    return
 
 
 @pytest.fixture
@@ -88,3 +53,45 @@ def mock_rate_limiting_redis() -> Generator[MagicMock]:
         patch("app.api.v1.endpoints.auth.get_cache", return_value=mock_redis),
     ):
         yield mock_redis
+
+
+@pytest.fixture
+def mock_rabbitmq_publisher() -> Generator[MagicMock]:
+    """Fixture for RabbitMQ event publisher."""
+    mock_publisher = MagicMock()
+    mock_publisher.publish_user_logged_in = AsyncMock()
+    mock_publisher.publish_token_revoked = AsyncMock()
+    mock_publisher.publish_password_changed = AsyncMock()
+    mock_publisher.connect = AsyncMock()
+    mock_publisher.disconnect = AsyncMock()
+
+    with patch(
+        "app.api.v1.endpoints.auth.get_event_publisher", return_value=mock_publisher
+    ):
+        yield mock_publisher
+
+
+@pytest.fixture
+def mock_postgres_repository() -> Generator[MagicMock]:
+    """Fixture for PostgreSQL user repository."""
+    mock_repo = MagicMock()
+    mock_repo.get_by_email = AsyncMock(
+        return_value=None
+    )  # Default to None (user not found)
+
+    with patch("app.api.v1.endpoints.auth.get_user_repository", return_value=mock_repo):
+        yield mock_repo
+
+
+@pytest.fixture(autouse=True)
+def patch_dependencies(
+    mock_rabbitmq_publisher, mock_postgres_repository
+) -> Generator[None]:
+    """Automatically patch RabbitMQ and PostgreSQL dependencies."""
+    return
+
+
+@pytest.fixture(autouse=True)
+def patch_redis_default(mock_redis_client) -> Generator[None]:
+    """Automatically patch Redis with default behavior."""
+    return
