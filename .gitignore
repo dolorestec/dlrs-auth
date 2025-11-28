@@ -182,3 +182,6 @@ keys/
 # Git
 .git/
 .gitignore.backup
+
+# Uv
+uv.lock
